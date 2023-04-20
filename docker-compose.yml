@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+    container_name: app
+    entrypoint: wait-for db:3306 -t 30 -- ./start.sh 
+    networks:
+      - node-connect
+    volumes:
+      - ./node:/usr/app
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db    
+  db:
+    container_name: db
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=nodedb
+    ports:
+        - "3306:3306"
+    networks:
+      - node-connect         
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+    - '8080:80'
+    depends_on:
+    - app
+networks:
+  node-connect:
+    driver: bridge
+      
