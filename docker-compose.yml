@@ -5,6 +5,7 @@ services:
       context: ./node
       dockerfile: Dockerfile
     container_name: app
+    hostname: app
     entrypoint: wait-for db:3306 -t 30 -- ./start.sh 
     networks:
       - node-connect
@@ -32,9 +33,12 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-    - '8080:80'
+      - '8080:80'
     depends_on:
-    - app
+      - app
+      - db
+    networks:
+      - node-connect   
 networks:
   node-connect:
     driver: bridge
